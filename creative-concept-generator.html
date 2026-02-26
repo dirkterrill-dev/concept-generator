@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Concept Generator</title>
+
+  <style>
+    /* SAE-inspired landing-page style (clean white, strong type, red CTA) */
+    :root{
+      --sae-red:#E10600;
+      --sae-red2:#ff3b30;
+
+      --ink:#0b0c10;
+      --ink2:#111827;
+      --muted:#6b7280;
+
+      --bg:#ffffff;
+      --panel:#ffffff;
+      --panel2:#f6f7f9;
+
+      --line:rgba(17,24,39,.10);
+      --shadow: 0 18px 50px rgba(0,0,0,.08);
+
+      --radius:16px;
+      --radius2:22px;
+
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      --max:1180px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--ink);
+      background:var(--bg);
+      overflow-x:hidden;
+    }
+
+    /* Subtle depth image in the background */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:url("68384f51-0600-41b0-ab8d-9aeab9579f28.png");
+      background-size:cover;
+      background-position:center;
+      opacity:.055;
+      filter: blur(10px) grayscale(35%) contrast(1.05);
+      z-index:-2;
+      transform:scale(1.03);
+    }
+
+    /* Soft white wash so the image never competes with UI */
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background: radial-gradient(1100px 700px at 15% 10%, rgba(225,6,0,.06), transparent 60%),
+                  radial-gradient(900px 700px at 85% 10%, rgba(0,0,0,.03), transparent 60%),
+                  linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.98));
+      z-index:-1;
+    }
+
+    /* Layout */
+    .page{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+    .container{
+      width:min(var(--max), 100%);
+      margin:0 auto;
+      padding:0 20px;
+    }
+
+    /* Header (SAE-ish) */
+    header{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:rgba(255,255,255,.82);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .nav{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:14px 0;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+    .brand img{
+      height:34px;
+      width:auto;
+      display:block;
+    }
+    .brandTitle{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      min-width:0;
+    }
+    .brandTitle .kicker{
+      font-size:12px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:700;
+      line-height:1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:52ch;
+    }
+    .brandTitle .title{
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:-.02em;
+      text-transform:uppercase;
+      line-height:1.1;
+    }
+
+    .navActions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .navHint{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+
+    /* Buttons */
+    .btn{
+      appearance:none;
+      border:1px solid rgba(17,24,39,.14);
+      background:#fff;
+      color:var(--ink);
+      padding:11px 14px;
+      border-radius:12px;
+      font-weight:900;
+      font-size:13px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition: transform .08s ease, filter .12s ease, box-shadow .12s ease;
+    }
+    .btn:hover{filter:brightness(1.02)}
+    .btn:active{transform:translateY(1px)}
+    .btnPrimary{
+      border-color:rgba(225,6,0,.35);
+      background:linear-gradient(135deg, var(--sae-red), var(--sae-red2));
+      color:#fff;
+      box-shadow:0 14px 30px rgba(225,6,0,.18);
+    }
+    .btnGhost{
+      background:rgba(255,255,255,.9);
+    }
+    .btnSmall{
+      padding:10px 12px;
+      font-size:12px;
+      letter-spacing:.08em;
+    }
+
+    /* Hero */
+    .hero{
+      padding:34px 0 22px;
+    }
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:18px;
+      align-items:stretch;
+    }
+    @media (max-width: 900px){
+      .heroGrid{grid-template-columns:1fr}
+    }
+
+    .heroLeft{
+      background:rgba(255,255,255,.88);
+      border:1px solid var(--line);
+      border-radius:var(--radius2);
+      box-shadow:var(--shadow);
+      padding:22px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .heroRight{
+      background:rgba(255,255,255,.88);
+      border:1px solid var(--line);
+      border-radius:var(--radius2);
+      box-shadow:var(--shadow);
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .hKicker{
+      font-size:12px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:800;
+    }
+    .h1{
+      margin:0;
+      font-size:clamp(26px, 3.2vw, 44px);
+      letter-spacing:-.04em;
+      line-height:1.02;
+      font-weight:950;
+      text-transform:uppercase;
+    }
+    .lead{
+      margin:0;
+      color:var(--ink2);
+      font-size:16px;
+      line-height:1.5;
+      max-width:70ch;
+    }
+
+    .formula{
+      margin-top:2px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:var(--panel2);
+      border:1px solid rgba(17,24,39,.08);
+      font-family:var(--mono);
+      font-size:13px;
+      color:#1f2937;
+      overflow:auto;
+      white-space:nowrap;
+    }
+
+    /* Concept output */
+    .conceptCard{
+      border-radius:18px;
+      border:1px solid rgba(17,24,39,.10);
+      background:linear-gradient(180deg, rgba(255,255,255,1), rgba(246,247,249,1));
+      padding:16px;
+    }
+    .conceptLabel{
+      font-size:12px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:900;
+      margin-bottom:8px;
+    }
+    .concept{
+      font-size:clamp(18px, 2.1vw, 24px);
+      line-height:1.25;
+      font-weight:950;
+      letter-spacing:-.02em;
+      color:#0b0c10;
+    }
+    .concept span{
+      display:inline-block;
+      padding:3px 10px;
+      border-radius:999px;
+      background:rgba(225,6,0,.07);
+      border:1px solid rgba(225,6,0,.16);
+      margin:2px 0;
+    }
+    .toast{
+      margin-top:10px;
+      min-height:18px;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.25;
+    }
+
+    /* Presets */
+    .presetRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .presetButtons{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(225,6,0,.06);
+      border:1px solid rgba(225,6,0,.16);
+      color:#7f1d1d;
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .kbd{
+      font-family:var(--mono);
+      font-weight:800;
+      letter-spacing:0;
+      color:#111827;
+      background:#fff;
+      border:1px solid rgba(17,24,39,.12);
+      border-radius:8px;
+      padding:2px 6px;
+      font-size:12px;
+    }
+
+    /* Form / controls */
+    .panel{
+      background:rgba(255,255,255,.88);
+      border:1px solid var(--line);
+      border-radius:var(--radius2);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns:repeat(2, minmax(0,1fr));} }
+    @media (max-width: 520px){ .grid{grid-template-columns:1fr;} }
+
+    .field{
+      background:var(--panel2);
+      border:1px solid rgba(17,24,39,.08);
+      border-radius:16px;
+      padding:12px;
+    }
+    .field label{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-size:12px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:900;
+      margin-bottom:8px;
+    }
+    .level{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(17,24,39,.10);
+      background:#fff;
+      color:#374151;
+      letter-spacing:.10em;
+    }
+    select{
+      width:100%;
+      padding:12px 12px;
+      border-radius:12px;
+      background:#fff;
+      color:#111827;
+      border:1px solid rgba(17,24,39,.12);
+      outline:none;
+      font-size:14px;
+    }
+    select:focus{
+      border-color:rgba(225,6,0,.55);
+      box-shadow:0 0 0 4px rgba(225,6,0,.12);
+    }
+
+    .controlsRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:12px;
+    }
+
+    .hint{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+      max-width:80ch;
+    }
+    .hint b{color:#111827}
+
+    /* Footer */
+    footer{
+      margin-top:auto;
+      padding:22px 0 30px;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .footerRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      border-top:1px solid var(--line);
+      padding-top:14px;
+    }
+
+    /* Utility */
+    .srOnly{
+      position:absolute;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <div class="container">
+        <div class="nav">
+          <div class="brand">
+            <!-- Put sae-logo.png in the same folder as this HTML -->
+            <img src="sae-logo.png" alt="SAE University College" />
+            <div class="brandTitle">
+              <div class="kicker">Story Development Tool</div>
+              <div class="title">Concept Generator</div>
+            </div>
+          </div>
+
+          <div class="navActions">
+            <div class="navHint">Space = Mash • C = Copy • 1–4 = Presets</div>
+            <button class="btn btnPrimary" id="navMash" type="button">Mash</button>
+            <button class="btn btnGhost" id="navCopy" type="button">Copy</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <div class="heroGrid">
+            <!-- Left: intro -->
+            <div class="heroLeft">
+              <div class="hKicker">Concept Generator</div>
+              <h2 class="h1">Generate a concept in 10 seconds</h2>
+              <p class="lead">
+                Choose one option in each dropdown. The combinations create a wide range of concept hooks.
+                Use the presets to demo, then evolve the idea with Mash.
+              </p>
+              <div class="formula">A (character) must (goal) in a (world) because (reason)</div>
+
+              <div class="presetRow">
+                <div class="pill">
+                  Game Mode
+                  <span class="kbd">Space</span>
+                  <span class="kbd">C</span>
+                  <span class="kbd">1–4</span>
+                </div>
+
+                <div class="presetButtons" aria-label="Preset concepts">
+                  <button class="btn btnSmall" type="button" data-preset="0">Preset 1</button>
+                  <button class="btn btnSmall" type="button" data-preset="1">Preset 2</button>
+                  <button class="btn btnSmall" type="button" data-preset="2">Preset 3</button>
+                  <button class="btn btnSmall" type="button" data-preset="3">Preset 4</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: output -->
+            <div class="heroRight">
+              <div class="conceptCard">
+                <div class="conceptLabel">Current concept</div>
+                <div class="concept" id="sentence"></div>
+                <div class="toast" id="toast"></div>
+              </div>
+
+              <div class="controlsRow">
+                <button class="btn btnPrimary" id="randomBtn" type="button">Mash (Random)</button>
+                <button class="btn" id="copyBtn" type="button">Copy</button>
+                <button class="btn" id="resetBtn" type="button">Reset</button>
+              </div>
+
+              <div class="controlsRow">
+                <button class="btn btnSmall" id="randomChar" type="button">↻ Character</button>
+                <button class="btn btnSmall" id="randomGoal" type="button">↻ Goal</button>
+                <button class="btn btnSmall" id="randomWorld" type="button">↻ World</button>
+                <button class="btn btnSmall" id="randomReason" type="button">↻ Reason</button>
+
+                <div class="pill" id="comboCount">0 concepts tried</div>
+              </div>
+
+              <p class="hint">
+                Fast method: click a <b>Preset</b> → hit one ↻ button 2–3 times → keep the version that feels like a real show.
+              </p>
+            </div>
+          </div>
+
+          <!-- Controls panel -->
+          <div class="panel" style="margin-top:18px;">
+            <div class="hKicker">Build your concept</div>
+
+            <div class="grid">
+              <div class="field">
+                <label for="character"><span>Character</span><span class="level">Level 1</span></label>
+                <select id="character"></select>
+              </div>
+
+              <div class="field">
+                <label for="goal"><span>Goal</span><span class="level">Level 2</span></label>
+                <select id="goal"></select>
+              </div>
+
+              <div class="field">
+                <label for="world"><span>World</span><span class="level">Level 3</span></label>
+                <select id="world"></select>
+              </div>
+
+              <div class="field">
+                <label for="reason"><span>Reason</span><span class="level">Level 4</span></label>
+                <select id="reason"></select>
+              </div>
+            </div>
+
+            <div class="controlsRow">
+              <p class="hint" style="margin:0;">
+                Tip: After you lock a concept, write 3 mood-board images you can see (location • object • lighting).
+              </p>
+
+              <div class="navActions" style="justify-content:flex-end;">
+                <button class="btn btnPrimary" id="bottomMash" type="button">Mash</button>
+                <button class="btn btnGhost" id="bottomCopy" type="button">Copy</button>
+              </div>
+            </div>
+
+            <span class="srOnly" id="ariaStatus" aria-live="polite"></span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footerRow">
+          <div>Concept Generator • SAE-style landing page</div>
+          <div>Use: Space = Mash • C = Copy • 1–4 = Presets</div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Options backwards-engineered so the EXACT 4 concepts can be generated.
+    const OPTIONS = {
+      character: [
+        "street singer",
+        "stranger stranded",
+        "best friend",
+        "newcomer",
+        "young teacher",
+        "single parent",
+        "new employee",
+        "local journalist",
+        "small-time criminal",
+        "online creator"
+      ],
+      goal: [
+        "must escape",
+        "must fix a mistake before the police charge them for it",
+        "must tell the truth online before a lie about them destroys their life",
+        "trying to escape a violent past must stay calm",
+        "must find someone who vanished",
+        "must protect a secret",
+        "must win a contest",
+        "must deliver something important",
+        "must stop a plan",
+        "must keep a promise"
+      ],
+      world: [
+        "a city full of cameras",
+        "a small town",
+        "an online world",
+        "a small town",
+        "a big city",
+        "a school",
+        "a workplace",
+        "a music festival",
+        "a family home",
+        "a long trip"
+      ],
+      reason: [
+        "someone is tracking their every move online",
+        "they are being blamed",
+        "they want to prove themselves",
+        "one mistake could reveal who they really are",
+        "time is running out",
+        "someone they love is in danger",
+        "they need money",
+        "they feel guilty",
+        "someone is watching",
+        "no one else will do it"
+      ]
+    };
+
+    const PRESETS = [
+      {
+        character: "street singer",
+        goal: "must escape",
+        world: "a city full of cameras",
+        reason: "someone is tracking their every move online",
+        exact: "A street singer must escape a city full of cameras because someone is tracking their every move online."
+      },
+      {
+        character: "stranger stranded",
+        goal: "must fix a mistake before the police charge them for it",
+        world: "a small town",
+        reason: "they are being blamed",
+        exact: "A stranger stranded in a small town must fix a mistake before the police charge them for it."
+      },
+      {
+        character: "best friend",
+        goal: "must tell the truth online before a lie about them destroys their life",
+        world: "an online world",
+        reason: "they want to prove themselves",
+        exact: "A best friend must tell the truth online before a lie about them destroys their life."
+      },
+      {
+        character: "newcomer",
+        goal: "trying to escape a violent past must stay calm",
+        world: "a small town",
+        reason: "one mistake could reveal who they really are",
+        exact: "A newcomer trying to escape a violent past must stay calm in a small town because one mistake could reveal who they really are."
+      }
+    ];
+
+    const els = {
+      character: document.getElementById("character"),
+      goal: document.getElementById("goal"),
+      world: document.getElementById("world"),
+      reason: document.getElementById("reason"),
+      sentence: document.getElementById("sentence"),
+      toast: document.getElementById("toast"),
+      comboCount: document.getElementById("comboCount"),
+      ariaStatus: document.getElementById("ariaStatus"),
+
+      randomBtn: document.getElementById("randomBtn"),
+      copyBtn: document.getElementById("copyBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+
+      randomChar: document.getElementById("randomChar"),
+      randomGoal: document.getElementById("randomGoal"),
+      randomWorld: document.getElementById("randomWorld"),
+      randomReason: document.getElementById("randomReason"),
+
+      navMash: document.getElementById("navMash"),
+      navCopy: document.getElementById("navCopy"),
+      bottomMash: document.getElementById("bottomMash"),
+      bottomCopy: document.getElementById("bottomCopy"),
+
+      presetButtons: Array.from(document.querySelectorAll("[data-preset]"))
+    };
+
+    let tries = 0;
+
+    function fillSelect(selectEl, arr){
+      selectEl.innerHTML = "";
+      arr.forEach((txt, i) => {
+        const opt = document.createElement("option");
+        opt.value = txt;
+        opt.textContent = `${String(i+1).padStart(2,"0")} — ${txt}`;
+        selectEl.appendChild(opt);
+      });
+    }
+
+    function escapeHTML(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function presetHTML(p){
+      return `A <span>${escapeHTML(p.character)}</span> <span>${escapeHTML(p.goal)}</span> in <span>${escapeHTML(p.world)}</span> because <span>${escapeHTML(p.reason)}</span>.`;
+    }
+
+    function buildSentence(){
+      const c = els.character.value;
+      const g = els.goal.value;
+      const w = els.world.value;
+      const r = els.reason.value;
+
+      for (const p of PRESETS){
+        if (p.character === c && p.goal === g && p.world === w && p.reason === r){
+          return { html: presetHTML(p), plain: p.exact, isPreset:true };
+        }
+      }
+
+      const plain = `A ${c} ${g} in ${w} because ${r}.`;
+      const html  = `A <span>${escapeHTML(c)}</span> <span>${escapeHTML(g)}</span> in <span>${escapeHTML(w)}</span> because <span>${escapeHTML(r)}</span>.`;
+      return { html, plain, isPreset:false };
+    }
+
+    function bumpTries(){
+      tries += 1;
+      els.comboCount.textContent = `${tries} concepts tried`;
+    }
+
+    function announce(msg){
+      if (!els.ariaStatus) return;
+      els.ariaStatus.textContent = msg;
+    }
+
+    function render({silent=false} = {}){
+      const out = buildSentence();
+      els.sentence.innerHTML = out.html;
+
+      if (!silent) bumpTries();
+
+      if (out.isPreset){
+        els.toast.textContent = "Preset loaded (exact wording).";
+        announce("Preset concept loaded.");
+      } else {
+        els.toast.textContent = "";
+        announce("Concept updated.");
+      }
+      return out.plain;
+    }
+
+    function pickRandom(selectEl){
+      const n = selectEl.options.length;
+      selectEl.selectedIndex = Math.floor(Math.random() * n);
+    }
+
+    function randomizeAll(){
+      pickRandom(els.character);
+      pickRandom(els.goal);
+      pickRandom(els.world);
+      pickRandom(els.reason);
+      render();
+    }
+
+    function randomizeOne(selectEl){
+      pickRandom(selectEl);
+      render();
+    }
+
+    function setSelectToValue(selectEl, value){
+      const idx = Array.from(selectEl.options).findIndex(o => o.value === value);
+      if (idx >= 0) selectEl.selectedIndex = idx;
+    }
+
+    function loadPreset(i){
+      const p = PRESETS[i];
+      setSelectToValue(els.character, p.character);
+      setSelectToValue(els.goal, p.goal);
+      setSelectToValue(els.world, p.world);
+      setSelectToValue(els.reason, p.reason);
+      render({silent:true});
+      els.toast.textContent = "Preset loaded (exact wording).";
+      announce("Preset concept loaded.");
+    }
+
+    async function copyConcept(){
+      const text = buildSentence().plain;
+      try{
+        await navigator.clipboard.writeText(text);
+        els.toast.textContent = "Copied!";
+        announce("Copied to clipboard.");
+      }catch(e){
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        els.toast.textContent = "Copied!";
+        announce("Copied to clipboard.");
+      }
+    }
+
+    function reset(){
+      els.character.selectedIndex = 0;
+      els.goal.selectedIndex = 0;
+      els.world.selectedIndex = 0;
+      els.reason.selectedIndex = 0;
+      tries = 0;
+      els.comboCount.textContent = "0 concepts tried";
+      render({silent:true});
+      els.toast.textContent = "";
+      announce("Reset.");
+    }
+
+    // Init
+    fillSelect(els.character, OPTIONS.character);
+    fillSelect(els.goal, OPTIONS.goal);
+    fillSelect(els.world, OPTIONS.world);
+    fillSelect(els.reason, OPTIONS.reason);
+
+    // Change events
+    ["character","goal","world","reason"].forEach(k => {
+      els[k].addEventListener("change", () => render());
+    });
+
+    // Buttons
+    [els.randomBtn, els.navMash, els.bottomMash].forEach(btn => btn.addEventListener("click", randomizeAll));
+    [els.copyBtn, els.navCopy, els.bottomCopy].forEach(btn => btn.addEventListener("click", copyConcept));
+    els.resetBtn.addEventListener("click", reset);
+
+    els.randomChar.addEventListener("click", () => randomizeOne(els.character));
+    els.randomGoal.addEventListener("click", () => randomizeOne(els.goal));
+    els.randomWorld.addEventListener("click", () => randomizeOne(els.world));
+    els.randomReason.addEventListener("click", () => randomizeOne(els.reason));
+
+    // Presets
+    els.presetButtons.forEach(btn => {
+      btn.addEventListener("click", () => loadPreset(Number(btn.dataset.preset)));
+    });
+
+    // Keyboard shortcuts
+    window.addEventListener("keydown", (e) => {
+      if (e.target && (e.target.tagName === "SELECT")) return;
+      if (e.code === "Space") { e.preventDefault(); randomizeAll(); }
+      if (e.key.toLowerCase() === "c") { copyConcept(); }
+      if (["1","2","3","4"].includes(e.key)) { loadPreset(Number(e.key) - 1); }
+    });
+
+    // Start with preset 1
+    loadPreset(0);
+  </script>
+</body>
+</html>
